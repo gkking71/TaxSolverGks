@@ -1460,9 +1460,21 @@ Behaviour rules:
 8. Output valid markdown only (headings with ###, tables with | pipes, **bold** for key figures/final answers). Do not wrap output in code fences.`;
 
         try {
+            let apiKey = localStorage.getItem('anthropic_api_key');
+            if (!apiKey) {
+                apiKey = prompt('Enter your Anthropic API key (stored only in this browser):');
+                if (!apiKey) { throw new Error('No API key provided'); }
+                localStorage.setItem('anthropic_api_key', apiKey);
+            }
+
             const response = await fetch("https://api.anthropic.com/v1/messages", {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
+                headers: {
+                    "Content-Type": "application/json",
+                    "x-api-key": apiKey,
+                    "anthropic-version": "2023-06-01",
+                    "anthropic-dangerous-direct-browser-access": "true"
+                },
                 body: JSON.stringify({
                     model: "claude-sonnet-4-6",
                     max_tokens: 1000,
